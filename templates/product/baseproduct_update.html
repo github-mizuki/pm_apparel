@@ -1,0 +1,140 @@
+<h1>製品（ベース）　更新画面</h1>
+<p>製品（Base）「{{ object.product_name }}（{{ object.product_code }}）」の更新を行います</p>
+<form method="post">
+  {% csrf_token %}
+  <div>
+    {{ form.product_name.label }}
+    <br>
+    {{ form.product_name }}
+    {% if form.product_name.errors %}
+    <div style="color:red;">{{ form.product_name.errors.as_text }}</div>
+    {% endif %}
+  </div>
+  <br>
+  <div>
+    {{ form.product_code.label }}
+    <br>
+    {{ form.product_code }}
+    {% if form.product_code.errors %}
+    <div style="color:red;">{{ form.product_code.errors.as_text }}</div>
+    {% endif %}
+  </div>
+  <br>
+  <div>
+    {{ form.large_category.label }}
+    <br>
+    {{ form.large_category }}
+  </div>
+  <br>
+  <div>
+    {{ form.small_category.label }}
+    <br>
+    {{ form.small_category }}
+  </div>
+  <br>
+  <div>
+    {{ form.seasons.label }}
+    <br>
+    {% for season in form.seasons %}
+    {{ season }}
+    {% endfor %}
+  </div>
+  <br>
+  <div>
+    {{ form.creator.label }}
+    <br>
+    {{ form.creator }}
+  </div>
+  <br>
+  <input type="submit" name='' value="更新">
+</form>
+<a href="{{ request.META.HTTP_REFERER }}">戻る</a>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+  const largeCategoryElement = $('#id_large_category');
+  const smallCategoryElement = $('#id_small_category');
+
+  // 保存済み小カテゴリから、大カテゴリを自動セレクト。リクエスト時のみ。
+  if (smallCategoryElement !== undefined) {
+    $.ajax({
+      url: '{% url "product:ajax_select_largecategory" %}',
+      type: 'GET',
+      data: {
+        'pk': smallCategoryElement.val(),
+      },
+      dataType: "json",
+    }).done(
+      function(response) {
+        const pk = response.pk;
+        $('#id_large_category').find('option').eq(pk).prop('selected', true);
+      }
+      // アロー関数
+      // response => {
+      //   const pk = response.pk
+      //   $('#id_large_category').find('option').eq(pk).prop('selected', true);
+      // }
+    );
+  }
+
+  // 小カテゴリ自動抽出メソッド
+  const changeSmallCategory = (select) => {
+    // 小カテゴリの選択肢が増殖しないように削除
+    smallCategoryElement.children().remove();
+    $.ajax({
+      url: '{% url "product:ajax_get_smallcategory" %}',
+      type: 'GET',
+      data: {
+        'pk': largeCategoryElement.val(),
+      }
+    }).done(
+      response => {
+        const option = $('<option>');
+        option.val('');
+        option.text('---------');
+        smallCategoryElement.append(option);
+        $("#id_small_category option[value='']").attr('selected', 'selected');
+        for (const category of response.categoryList) {
+          const option = $('<option>');
+          option.val(category['pk']);
+          option.text(category['name']);
+          smallCategoryElement.append(option);
+        }
+        if (select !== undefined) {
+          smallCategoryElement.val(select);
+        }
+      }
+    );
+  };
+
+  // 大カテゴリに変化が加えられた際、メソッド呼び出し。
+  largeCategoryElement.on('change', () => {
+    changeSmallCategory();
+  });
+
+  // 小カテゴリに変化が加えられた際、大カテゴリを自動抽出&セレクトメソッド
+  $('#id_small_category').on('change', function () {
+    $.ajax({
+      url: '{% url "product:ajax_select_largecategory" %}',
+      type: 'GET',
+      data: {
+        'pk': smallCategoryElement.val(),
+      }
+    }).done(
+      response => {
+        if (response.pk === undefined) {
+          // 「――――――――――」をセレクトする
+          $('#id_large_category').find('option').eq(0).prop('selected', true);
+        }
+        const pk = response.pk;
+        $('#id_large_category').find('option').eq(pk).prop('selected', true);
+      }
+    );
+  });
+
+  // if (largeCategoryElement.val()) {
+  //   const selectedCategory = smallCategoryElement.val();
+  //   changeCategory(selectedCategory);
+  // }
+</script>

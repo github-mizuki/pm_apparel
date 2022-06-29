@@ -1,0 +1,28 @@
+<h1>製品詳細画面</h1>
+<p>製品名 - {{ object.detail_name }}</p>
+<p>製品コード - {{ object.detail_code }}</p>
+<p>カラー - {{ object.color }}</p>
+<p>性別 - {{ object.gender }}</p>
+<p>タグ - {{ object.tags }}</p>
+<p>備考 - {{ object.memo }}</p>
+{% if pictures %}
+{% for picture in pictures %}
+  <p><img src="{{ picture.picture.url }}"></p>
+{% endfor %}
+{% else %}
+  <p>写真はありません</p>
+{% endif %}
+{% if materials %}
+<p>登録素材一覧</p>
+{% for material in materials %}
+  <p>素材名：{{ material.material_name }}</p>
+  <p>数量：{{ material.volume }}</p>
+  <hr>
+{% endfor %}
+{% else %}
+  <p>登録された素材はありません</p>
+{% endif %}
+<a href="{% url 'product:product_update' object.id %}">製品詳細情報編集</a>
+<a href="{% url 'product:product_copy' object.id %}">パラメータ引継登録</a>
+<br>
+<a href="{% url 'product:product_list' %}">一覧に戻る</a>

@@ -1,0 +1,137 @@
+<h1>カテゴリ設定画面</h1>
+<p>
+  <a href="{% url 'product:config_top' %}">設定一覧に戻る</a>
+</p>
+
+<form method="post">
+  <h2>カテゴリー（大）新規登録フォーム</h2>
+  {% csrf_token %}
+  {% if largecategory_form.name.errors %}
+  <div style="color:red;">{{ largecategory_form.name.errors.as_text }}</div>
+  {% endif %}
+  <div>
+    {{ largecategory_form.name.label }}
+    <br>
+    {{ largecategory_form.name }}
+  </div>
+  <input type="submit" name ="largecategory_button" value="保存">
+</form>
+<form method="post">
+  <h2>カテゴリー（小）新規登録フォーム</h2>
+  {% csrf_token %}
+  {% if smallcategory_form.name.errors %}
+  <div style="color:red;">{{ smallcategory_form.name.errors.as_text }}</div>
+  {% endif %}
+  <div>
+    {{ smallcategory_form.largecategory.label }}
+    <br>
+    {{ smallcategory_form.largecategory }}
+  </div>
+  <div>
+    {{ smallcategory_form.name.label }}
+    <br>
+    {{ smallcategory_form.name }}
+  </div>
+  <input type="submit" name ="smallcategory_button" value="保存">
+</form>
+<hr>
+<h2>カテゴリーリスト</h2>
+<button type="button" id="largecategory_button" value="1">カテゴリー（大）</button>
+<button type="button" id="smallcategory_button" value="2">カテゴリー（小）</button>
+
+<form id="largeCategoryForm" method="get">
+  <div id="largecategory">
+    {% for largecategory in largecategory_list %}
+    <div>
+      <input type="radio" name="largecategorySelect" id="large-{{ largecategory.id }}" value="{{ largecategory.id }}">
+      <label for="large-{{ largecategory.id }}">{{ largecategory.name }}</label>
+    </div>
+    {% endfor %}
+    <div>
+      <button type="submit" id="largeCategoryUpdate">編集する</button>
+      <button type="submit" id="largeCategoryDelete">削除する</button>
+    </div>
+  </div>
+</form>
+<form id="smallCategoryForm" method="get">
+  {% csrf_token %}
+  <div id="smallcategory" style="display: none;">
+    {% for largecategory in largecategory_list %}
+    <div>
+      {{ largecategory.name }}
+    </div>
+    {% for smallcategory in largecategory.smallcategory_set.all %}
+    <div>
+      <input type="checkbox" name="smallcategorySelect" id="small-{{ smallcategory.id }}" value="{{ smallcategory.id }}">
+      <label for="small-{{ smallcategory.id }}">{{ smallcategory.name }}</label>
+    </div>
+    {% endfor %}
+    {% endfor %}
+    <div>
+      <button type="submit" id="smallCategoryUpdate">編集する</button>
+      <button type="submit" id="smallCategoryDelete">削除する</button>
+    </div>
+  </div>
+</form>
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+  // カテゴリー（大）表示
+  $('#largecategory_button').click(function() {
+    $('#largecategory').css('display', 'block');
+    $('#smallcategory').css('display', 'none');
+  })
+  // カテゴリー（小）表示
+  $('#smallcategory_button').click(function () {
+      $('#largecategory').css('display', 'none');
+      $('#smallcategory').css('display', 'block');
+  })
+  // カテゴリー（大）Update遷移時のpath設定&アラート
+  $("#largeCategoryUpdate").click(function () {
+    const largeCategoryItem = $("input[name='largecategorySelect']:checked").val();
+    if (!largeCategoryItem) {
+      alert('編集する項目を選択してください');
+      return false;
+    }
+    $('#largeCategoryForm').attr('action', '../largecategory_update/' + largeCategoryItem);
+  })
+  // カテゴリー（大）Delete遷移時のpath設定&アラート
+  $("#largeCategoryDelete").click(function () {
+    const largeCategoryItem = $("input[name='largecategorySelect']:checked").val();
+    if (!largeCategoryItem) {
+      alert('削除する項目を選択してください');
+      return false;
+    }
+    $('#largeCategoryForm').attr('action', '../largecategory_delete/' + largeCategoryItem);
+  })
+  // 選択済みチェックボックス用配列
+  let categories = [];
+  // カテゴリー（小）Update遷移時のpath設定&アラート
+  $("#smallCategoryUpdate").click(function () {
+    categories = [];
+    $("input[name='smallcategorySelect']:checked").each(function() {
+      categories.push($(this).val());
+    })
+    if (categories.length !== 1) {
+      alert('編集する項目を1つ選択してください');
+      return false;
+    }
+    $('#smallCategoryForm').attr('action', '../smallcategory_update/' + categories[0]);
+  })
+  // カテゴリー（小）Delete遷移時のpath設定&アラート
+  $("#smallCategoryDelete").click(function () {
+    categories = [];
+    $("input[name='smallcategorySelect']:checked").each(function() {
+      categories.push($(this).val());
+    })
+    if (!categories) {
+      alert('削除する項目を選択してください');
+      return false;
+    }
+    $('#smallCategoryForm').attr('action', '../smallcategory_delete');
+  })
+
+</script>

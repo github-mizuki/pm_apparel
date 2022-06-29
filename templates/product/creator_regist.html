@@ -1,0 +1,53 @@
+<h1>製作者設定画面</h1>
+<p>
+  <a href="{% url 'product:config_top' %}">設定一覧に戻る</a>
+</p>
+<form method="post">
+  {% csrf_token %}
+  <h2>製作者新規登録</h2>
+  <div>
+    {{ form.creator_name.label }}
+    <br>
+    {{ form.creator_name }}
+  </div>
+  <input type="submit" value="保存">
+</form>
+<hr>
+<form id="creatorform_id" method="get">
+  <h2>製作者一覧リスト</h2>
+  <div>
+    <button type="submit" id="update">編集する</button>
+    <button type="submit" id="delete">削除する</button>
+  </div>
+  {% for creator in creator_list %}
+    <div>
+      <input type="radio" name="select" id="select{{ forloop.counter }}" value="{{ creator.id }}">
+      <label for="select{{ forloop.counter }}">{{ creator.creator_name }}</label>
+    </div>
+  {% endfor %}
+</form>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+  $("#update").click(function () {
+    // チェック済みのvalue属性を取得
+    const creatorItem = $("input[name='select']:checked").val();
+    // 未選択の場合アラート発出
+    if (!creatorItem) {
+      alert('編集する項目を選択してください');
+      return false; // フォームのsubmitを止める
+    }
+    // formのaction属性にパスを付与（現在のパスに繋げようとする挙動なので、1階層戻す必要がある。）
+    $('#creatorform_id').attr('action', '../creator_update/' + creatorItem);
+  })
+
+  $("#delete").click(function () {
+      const creatorItem = $("input[name='select']:checked").val();
+      if (!creatorItem) {
+      alert('削除する項目を選択してください');
+      return false;
+    }
+      $('#creatorform_id').attr('action', '../creator_delete/' + creatorItem);
+    })
+</script>

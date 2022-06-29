@@ -1,0 +1,11 @@
+<h1>製品（Base）詳細画面</h1>
+<p>製品名（Base） - {{ object.product_name }}</p>
+<p>製品コード（Base） - {{ object.product_code }}</p>
+<p>カテゴリー（大） - {{ object.small_category.largecategory.name }}</p>
+<p>カテゴリー（小） - {{ object.small_category.name }}</p>
+<p>季節 - {% for season in object.seasons.all %}{{ season.season }} {% endfor %}</p>
+<p>製作者 - {{ object.creator }}</p>
+<a href="{% url 'product:baseproduct_update' object.id %}">基底情報編集</a>
+<a href="{% url 'product:product_regist' object.id %}">製品新規登録</a>
+<br>
+<a href="{% url 'product:product_list' %}">一覧に戻る</a>

@@ -1,0 +1,12 @@
+<h1>製作者編集画面</h1>
+<a href="{% url 'product:creator_regist' %}">戻る</a>
+<form method="post">
+  {% csrf_token %}
+  <h2>製作者「{{ form.creator_name.initial }}」の変更</h2>
+  <div>
+    {{ form.creator_name.label }}
+    <br>
+    {{ form.creator_name }}
+  </div>
+  <input type="submit" value="更新">
+</form>

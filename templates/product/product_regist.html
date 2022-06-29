@@ -1,0 +1,138 @@
+<h1>製品登録画面</h1>
+<p>製品（Base）「{{ baseproduct.product_name }}（{{ baseproduct.product_code }}）」に属する製品詳細の登録を行います</p>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div>
+    <label>{{ products_form.detail_name.label }}</label>
+    <br>
+    {{ baseproduct.product_name }} - {{ products_form.detail_name }}
+    {% if products_form.detail_name.errors %}
+    <div style="color:red;">{{ products_form.detail_name.errors.as_text }}</div>
+    {% endif %}
+  </div>
+  <br>
+  <div>
+    <label>{{ products_form.detail_code.label }}</label>
+    <br>
+    {{ baseproduct.product_code }} - {{ products_form.detail_code }}
+    {% if products_form.detail_code.errors %}
+    <div style="color:red;">{{ products_form.detail_code.errors.as_text }}</div>
+    {% endif %}
+  </div>
+  <p>カテゴリー（大） - {{ baseproduct.small_category.largecategory.name }}</p>
+  <p>カテゴリー（小） - {{ baseproduct.small_category }}</p>
+  <p>季節 - {% for season in baseproduct.seasons.all %}{{ season.season }} {% endfor %}</p>
+  <p>製作者 - {{ baseproduct.creator }}</p>
+  <div>
+    <label>{{ products_form.color.label }}</label>
+    <br>
+    {{ products_form.color }}
+  </div>
+  <br>
+  <div>
+    <label>{{ products_form.gender.label }}</label>
+    <br>
+    {{ products_form.gender }}
+  </div>
+  <br>
+  <div>
+    <label>{{ products_form.tags.label }}</label>
+    <br>
+    {{ products_form.tags }}
+  </div>
+  <br>
+  <div>
+    <label>{{ products_form.memo.label }}</label>
+    <br>
+    {{ products_form.memo }}
+  </div>
+  <br>
+  <div>
+    <label>{{ pictures_form.picture.label }}</label>
+    <br>
+    {{ pictures_form.picture }}
+  </div>
+  <br>
+  {{ materials_formset.management_form }}
+  <div id="formset-area">
+    {% for material_form in materials_formset %}
+    {{ material_form.id }}
+    <label>{{ material_form.material_name.label }}</label>
+    <br>
+    {{ material_form.material_name }}
+    <br>
+    <label>{{ material_form.volume.label }}</label>
+    <br>
+    {{ material_form.volume }}
+    {% if material_form.non_field_errors %}
+    {% for error in material_form.non_field_errors %}
+    <div style="color:red;">{{ error }}</div>
+    {% endfor %}
+    {% endif %}
+    <hr>
+    {% endfor %}
+  </div>
+  <div>
+    <button id="add" type="button">素材欄の追加</button>
+  </div>
+  <div>
+    <input type="submit" name='button_1' value="保存して終了">
+    <input type="submit" name='button_2' value="保存してもう一つ登録する">
+  </div>
+</form>
+<a href="{% url 'product:product_list' %}">一覧に戻る</a>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+  $(function () {
+    let totalManageElement = $('input#id_form-TOTAL_FORMS');
+    let currentFormCount = parseInt(totalManageElement.val());
+    $('button#add').on('click', function () {
+      if (currentFormCount < 10) {
+        let nameLabelElement = $('<label>', {
+          for: 'id_form-' + currentFormCount + '-material_name',
+          text: '素材名',
+        });
+        let nameElement = $('<input>', {
+          type: 'text',
+          name: 'form-' + currentFormCount + '-material_name',
+          id: 'id_form-' + currentFormCount + '-material_name',
+        });
+        let volumeLabelElement = $('<label>', {
+          for: 'id_form-' + currentFormCount + '-volume',
+          text: '数量',
+        });
+        let volumeElement = $('<input>', {
+          type: 'text',
+          name: 'form-' + currentFormCount + '-volume',
+          id: 'id_form-' + currentFormCount + '-volume',
+        });
+        let hiddenElement = $('<input>', {
+          type: 'hidden',
+          name: 'form-' + currentFormCount + '-id',
+          id: 'id_form-' + currentFormCount + '-id',
+        });
+        // $('div#formset-area').append('<p>');
+        // $('div#formset-area p:last').append(nameLabelElement);
+        // $('div#formset-area p:last').append(nameElement);
+        // $('div#formset-area').append('<p>');
+        // $('div#formset-area p:last').append(volumeLabelElement);
+        // $('div#formset-area p:last').append(volumeElement);
+        // $('div#formset-area p:last').append(volumeHiddenElement);
+        // $('div#formset-area').append('<hr>');
+
+        $('div#formset-area').append(hiddenElement);
+        $('div#formset-area').append(nameLabelElement);
+        $('div#formset-area').append('<br>');
+        $('div#formset-area').append(nameElement);
+        $('div#formset-area').append('<br>');
+        $('div#formset-area').append(volumeLabelElement);
+        $('div#formset-area').append('<br>');
+        $('div#formset-area').append(volumeElement);
+        $('div#formset-area').append('<hr>');
+        currentFormCount += 1;
+        totalManageElement.attr('value', currentFormCount);
+      }
+    });
+  });
+</script>

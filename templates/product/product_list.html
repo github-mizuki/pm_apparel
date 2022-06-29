@@ -1,0 +1,23 @@
+<h1>製品一覧</h1>
+<a href="{% url 'product:index' %}">TOP</a>
+<table border="1" cellpadding="10">
+  <tr>
+    <th>製品名（Base）</th>
+    <th>製品名</th>
+  </tr>
+  {% for object in object_list %}
+  {% if object.products_set.all %}
+  {% for product in object.products_set.all|dictsortreversed:"create_at" %}
+  <tr>
+    <td><a href="{% url 'product:baseproduct_detail' object.id %}">{{ object.product_name }}</a></td>
+    <td><a href="{% url 'product:product_detail' product.id %}">{{ product.detail_name }}</td>
+  </tr>
+  {% endfor %}
+  {% else %}
+  <tr>
+    <td><a href="{% url 'product:baseproduct_detail' object.id %}">{{ object.product_name }}</a></td>
+    <td>未登録</td>
+  </tr>
+  {% endif %}
+  {% endfor %}
+</table>

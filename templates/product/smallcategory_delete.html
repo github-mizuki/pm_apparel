@@ -1,0 +1,14 @@
+<h1>カテゴリー（小）削除画面</h1>
+<a href="{% url 'product:category_regist' %}">カテゴリー設定画面に戻る</a>
+{% if delete_categories %}
+  <p>選択されたカテゴリー（小）を削除しますか？</p>
+  {% for delete_category in delete_categories %}
+  <li>{{ delete_category }}</li>
+  {% endfor %}
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">削除</button>
+  </form>
+{% else %}
+  <p>選択されたカテゴリー（小）は存在しません</p>
+{% endif %}

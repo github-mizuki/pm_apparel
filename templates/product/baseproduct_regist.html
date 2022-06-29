@@ -1,0 +1,130 @@
+<h1>製品（Base）登録画面</h1>
+<p>製品の基底情報を登録してください</p>
+<form method="post">
+  {% csrf_token %}
+  <div>
+    {{ baseproducts_form.product_name.label }}
+    <br>
+    {{ baseproducts_form.product_name }}
+    {% if baseproducts_form.product_name.errors %}
+    <div style="color:red;">{{ baseproducts_form.product_name.errors.as_text }}</div>
+    {% endif %}
+  </div>
+  <br>
+  <div>
+    {{ baseproducts_form.product_code.label }}
+    <br>
+    {{ baseproducts_form.product_code }}
+    {% if baseproducts_form.product_code.errors %}
+    <div style="color:red;">{{ baseproducts_form.product_code.errors.as_text }}</div>
+    {% endif %}
+  </div>
+  <br>
+  <div>
+    {{ baseproducts_form.large_category.label }}
+    <br>
+    {{ baseproducts_form.large_category }}
+  </div>
+  <br>
+  <div>
+    {{ baseproducts_form.small_category.label }}
+    <br>
+    {{ baseproducts_form.small_category }}
+  </div>
+  <br>
+  <div>
+    {{ baseproducts_form.seasons.label }}
+    <br>
+    {% for season in baseproducts_form.seasons %}
+    {{ season }}
+    {% endfor %}
+  </div>
+  <br>
+  <div>
+    {{ baseproducts_form.creator.label }}
+    <br>
+    {{ baseproducts_form.creator }}
+  </div>
+  <br>
+  <input type="submit" name='button_1' value="保存して終了">
+  <input type="submit" name='button_2' value="保存して製品詳細登録画面へ進む">
+  <br>
+  <a href="{% url 'product:index' %}">TOP</a>
+</form>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+  const largeCategoryElement = $('#id_large_category');
+  const smallCategoryElement = $('#id_small_category');
+
+  if (smallCategoryElement !== undefined) {
+    $.ajax({
+      url: '{% url "product:ajax_select_largecategory" %}',
+      type: 'GET',
+      data: {
+        'pk': smallCategoryElement.val(),
+      }
+    }).done(
+      response => {
+        const pk = response.pk
+        $('#id_large_category').find('option').eq(pk).prop('selected', true);
+      }
+    );
+  }
+
+  const changeCategory = (select) => {
+    smallCategoryElement.children().remove();
+    $.ajax({
+      url: '{% url "product:ajax_get_smallcategory" %}',
+      type: 'GET',
+      data: {
+        'pk': largeCategoryElement.val(),
+      }
+    }).done(
+      response => {
+        const option = $('<option>');
+        option.val('');
+        option.text('---------');
+        smallCategoryElement.append(option);
+        $("#id_small_category option[value='']").attr('selected', 'selected');
+        for (const category of response.categoryList) {
+          const option = $('<option>');
+          option.val(category['pk']);
+          option.text(category['name']);
+          smallCategoryElement.append(option);
+        }
+        if (select !== undefined) {
+          smallCategoryElement.val(select);
+        }
+      }
+    );
+  };
+
+  largeCategoryElement.on('change', () => {
+    changeCategory();
+  });
+
+  $('#id_small_category').on('change', function () {
+    $.ajax({
+      url: '{% url "product:ajax_select_largecategory" %}',
+      type: 'GET',
+      data: {
+        'pk': smallCategoryElement.val(),
+      }
+    }).done(
+      response => {
+        if (response.pk === undefined) {
+          $('#id_large_category').find('option').eq(0).prop('selected', true);
+        }
+        const pk = response.pk
+        $('#id_large_category').find('option').eq(pk).prop('selected', true);
+      }
+    );
+  });
+
+  if (largeCategoryElement.val()) {
+    const selectedCategory = smallCategoryElement.val();
+    changeCategory(selectedCategory);
+  }
+</script>
